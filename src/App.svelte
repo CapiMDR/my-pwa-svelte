@@ -2,6 +2,7 @@
   // @ts-nocheck
   import { db } from "./lib/db.js";
   import NoteCard from "./components/NoteCard.svelte";
+  import Clock from "./components/Clock.svelte";
 
   let noteText = "";
 
@@ -30,10 +31,17 @@
   }
 
   loadNotes();
+
+  function deleteNote(noteID) {
+    db.notes.delete(noteID);
+    notes = notes.filter((note) => note.id != noteID);
+    console.log("deleting " + noteID);
+  }
 </script>
 
 <h1>My Notes</h1>
-
+<Clock />
+<hr />
 <input bind:value={noteText} placeholder="Write a note..." />
 
 <button onclick={saveNote}> Save </button>
@@ -43,5 +51,5 @@
 <hr />
 
 {#each notes as note (note.id)}
-  <NoteCard {note} />
+  <NoteCard {note} onclick={deleteNote} />
 {/each}
