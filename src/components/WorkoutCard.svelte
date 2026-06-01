@@ -12,51 +12,53 @@
     completedSets--;
   }
 
-  const progress = (completedSets / workout.sets) * 100;
+  const progress = $derived((completedSets / workout.sets) * 100);
 </script>
 
-<div class="workout-card">
-  <div class="card-header">
-    <div class="card-title">
-      <span class="position-badge">{workout.position + 1}</span>
-      <h3>{workout.name}</h3>
-    </div>
-    <button class="btn-delete" onclick={() => deleteWorkout(workout)} title="Delete workout">
-      <span class="material-icons">close</span>
-    </button>
-  </div>
-
-  <div class="card-body">
-    <div class="stats-row">
-      <div class="stat">
-        <span class="stat-label">Reps</span>
-        <span class="stat-value">{workout.reps}</span>
+<div class="workout-card" class:completed={completedSets === workout.sets}>
+  <div class="card-content">
+    <div class="card-header">
+      <div class="card-title">
+        <span class="position-badge">{workout.position + 1}</span>
+        <h3>{workout.name}</h3>
       </div>
-      <div class="stat">
-        <span class="stat-label">Sets</span>
-        <span class="stat-value">{workout.sets}</span>
-      </div>
-      <div class="stat progress-stat">
-        <span class="stat-label">Completed</span>
-        <span class="stat-value accent">{completedSets}/{workout.sets}</span>
-      </div>
-    </div>
-
-    <div class="progress-bar">
-      <div class="progress-fill" style={`width: ${progress}%`}></div>
-    </div>
-
-    <div class="button-group">
-      <button class="btn-adjust" onclick={() => uncompleteSet()} disabled={completedSets === 0}>
-        <span class="material-icons">remove</span>
-      </button>
-      <button class="btn-adjust" onclick={() => completeSet()} disabled={completedSets >= workout.sets}>
-        <span class="material-icons">add</span>
+      <button class="btn-delete" onclick={() => deleteWorkout(workout)} title="Delete workout">
+        <span class="material-icons">close</span>
       </button>
     </div>
+
+    <div class="card-body">
+      <div class="stats-row">
+        <div class="stat">
+          <span class="stat-label">Reps</span>
+          <span class="stat-value">{workout.reps}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Sets</span>
+          <span class="stat-value">{workout.sets}</span>
+        </div>
+        <div class="stat progress-stat">
+          <span class="stat-label">Completed</span>
+          <span class="stat-value accent">{completedSets}/{workout.sets}</span>
+        </div>
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-fill" style={`width: ${progress}%`}></div>
+      </div>
+
+      <div class="button-group">
+        <button class="btn-adjust" onclick={() => uncompleteSet()} disabled={completedSets === 0}>
+          <span class="material-icons">remove</span>
+        </button>
+        <button class="btn-adjust" onclick={() => completeSet()} disabled={completedSets >= workout.sets}>
+          <span class="material-icons">add</span>
+        </button>
+      </div>
+    </div>
   </div>
 
-  <div class="card-footer">
+  <div class="card-side-buttons">
     <button class="btn-move" onclick={() => changePosition(workout, -1)} title="Move up">
       <span class="material-icons">arrow_upward</span>
     </button>
@@ -71,11 +73,19 @@
     background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--color-primary) 100%);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
     transition: all var(--transition-base);
     overflow: hidden;
     box-shadow: var(--shadow-sm);
+    display: flex;
+    gap: var(--spacing-md);
+  }
+
+  .workout-card.completed {
+    border-color: var(--color-success);
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 212, 255, 0.05) 100%);
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
   }
 
   .workout-card:hover {
@@ -84,11 +94,17 @@
     transform: translateY(-2px);
   }
 
+  .card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
   .card-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: var(--spacing-lg);
   }
 
   .card-title {
@@ -130,14 +146,15 @@
   }
 
   .card-body {
-    margin-bottom: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
   }
 
   .stats-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
+    gap: var(--spacing-sm);
   }
 
   .stat {
@@ -178,7 +195,6 @@
     background: var(--bg-tertiary);
     border-radius: 4px;
     overflow: hidden;
-    margin-bottom: var(--spacing-lg);
     border: 1px solid var(--border-light);
   }
 
@@ -213,15 +229,14 @@
     box-shadow: var(--shadow-glow-cyan);
   }
 
-  .card-footer {
+  .card-side-buttons {
     display: flex;
+    flex-direction: column;
     gap: var(--spacing-sm);
-    padding-top: var(--spacing-lg);
-    border-top: 1px solid var(--border-light);
+    justify-content: center;
   }
 
   .btn-move {
-    flex: 1;
     background: transparent;
     color: var(--color-accent-secondary);
     border: 1px solid var(--color-accent-secondary);
@@ -230,6 +245,9 @@
     align-items: center;
     justify-content: center;
     text-transform: none;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
   }
 
   .btn-move:hover {
@@ -238,6 +256,7 @@
 
   @media (max-width: 640px) {
     .workout-card {
+      flex-direction: row;
       padding: var(--spacing-md);
       margin-bottom: var(--spacing-md);
     }
@@ -247,7 +266,7 @@
     }
 
     .card-header {
-      margin-bottom: var(--spacing-md);
+      margin-bottom: 0;
     }
 
     .position-badge {
@@ -258,6 +277,15 @@
 
     .card-title h3 {
       font-size: var(--font-size-base);
+    }
+
+    .card-side-buttons {
+      flex-direction: row;
+    }
+
+    .btn-move {
+      width: 40px;
+      height: 40px;
     }
   }
 </style>

@@ -104,12 +104,17 @@
       timerState = "running";
     }
   }
+
+  function stopRoutine() {
+    timer.stop();
+    timerState = "stopped";
+  }
 </script>
 
 <NavBar />
 
 <main class="app-container">
-  <div class="controls-panel">
+  <div class="controls-panel" class:hidden={timerState === "running"}>
     <div class="section-header">
       <h2>Routine for <span class="day-highlight">{selectedDay}</span></h2>
       <div class="timer-section">
@@ -168,6 +173,17 @@
 
   <div class="divider"></div>
 
+  {#if timerState === "running"}
+    <div class="running-timer-section">
+      <Timer bind:this={timer} />
+      <button onclick={stopRoutine} class="btn-stop">
+        <span class="material-icons">stop</span>
+        Stop Routine
+      </button>
+    </div>
+    <div class="divider"></div>
+  {/if}
+
   <div class="workouts-section">
     {#if workouts.length === 0}
       <div class="empty-state">
@@ -210,6 +226,10 @@
     box-shadow: var(--shadow-md);
   }
 
+  .controls-panel.hidden {
+    display: none;
+  }
+
   .section-header {
     display: flex;
     justify-content: space-between;
@@ -234,6 +254,31 @@
     border-radius: var(--radius-md);
     border: 1px solid rgba(0, 212, 255, 0.2);
     min-width: 120px;
+  }
+
+  .running-timer-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--color-primary) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+    box-shadow: var(--shadow-md);
+    gap: var(--spacing-lg);
+  }
+
+  .btn-stop {
+    background: linear-gradient(135deg, var(--color-danger), var(--color-accent-secondary));
+    color: var(--bg-dark);
+    padding: var(--spacing-md) var(--spacing-lg);
+    min-width: 140px;
+  }
+
+  .btn-stop:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(255, 0, 110, 0.4);
   }
 
   .form-grid {
