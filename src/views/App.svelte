@@ -1,9 +1,9 @@
 <script>
   // @ts-nocheck
-  import { db } from "./lib/db.js";
-  import WorkoutCard from "./components/WorkoutCard.svelte";
-  import NavBar from "./components/NavBar.svelte";
-  import Timer from "./components/Timer.svelte";
+  import { db } from "../lib/db.js";
+  import WorkoutCard from "../components/WorkoutCard.svelte";
+  import NavBar from "../components/NavBar.svelte";
+  import Timer from "../components/Timer.svelte";
 
   const date = new Date();
   const today = new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(date);
