@@ -103,10 +103,12 @@
         }
       });
     } else {
+      const dayWorkouts = await db.workouts.where("day").equals(selectedDay).toArray();
+
       await db.workouts.add({
         ...workoutData,
         day: selectedDay,
-        position: workouts.length,
+        position: dayWorkouts.length,
       });
     }
 
@@ -121,7 +123,11 @@
 
     const deletedWorkoutID = deletedWorkout.id;
 
-    const workoutsToShift = workouts.filter((workout) => workout.position > deletedWorkout.position);
+    const workoutsToShift = await db.workouts
+      .where("day")
+      .equals(deletedWorkout.day)
+      .filter((w) => w.position > deletedWorkout.position)
+      .toArray();
 
     totalWorkouts--;
 
@@ -145,7 +151,7 @@
       return;
     }
 
-    const otherWorkout = workouts[newPosition];
+    const otherWorkout = workouts.find((w) => w.position === newPosition);
     [workouts[oldPosition], workouts[newPosition]] = [workouts[newPosition], workouts[oldPosition]];
 
     workouts = [...workouts];
@@ -239,11 +245,6 @@
 <NavBar />
 
 <main class="app-container">
-  {#if showScrollButton || routineState != RoutineState.STOPPED}
-    <button class="btn-scroll" onclick={() => scrollToTop()} transition:fly={{ y: -20, duration: 100 }}>
-      <span class="material-symbols-outlined"> keyboard_double_arrow_up </span>
-    </button>
-  {/if}
   {#if routineState !== RoutineState.STOPPED}
     <div class="running-timer-section" class:completed={completedWorkouts == totalWorkouts} transition:fade={{ y: -20, duration: 100 }}>
       <Timer timerState={routineState} />
@@ -267,11 +268,22 @@
         </span>
       </button>
     </div>
-    {#if routineState === RoutineState.PAUSED}
-      <div class="pause-indicator" transition:fly={{ y: -20, duration: 250 }}>Paused</div>
-    {/if}
-    <div class="divider"></div>
   {/if}
+  {#if showScrollButton}
+    <button
+      class="btn-scroll"
+      class:stick-higher={routineState === RoutineState.STOPPED}
+      onclick={() => scrollToTop()}
+      transition:fly={{ y: -20, duration: 100 }}
+    >
+      <span class="material-symbols-outlined"> keyboard_double_arrow_up </span>
+    </button>
+  {/if}
+  {#if routineState === RoutineState.PAUSED}
+    <div class="pause-indicator" transition:fly={{ y: -20, duration: 250 }}>Paused</div>
+  {/if}
+  <div class="divider"></div>
+
   {#if routineState === RoutineState.STOPPED}
     <div class="controls-panel" transition:fade={{ y: -20, duration: 100 }}>
       <div class="section-header">
@@ -476,7 +488,7 @@
     gap: var(--spacing-lg);
 
     position: sticky;
-    top: 150px;
+    top: 100px;
     z-index: 100;
   }
 
@@ -499,7 +511,7 @@
     font-weight: 700;
     text-align: center;
     position: fixed;
-    top: 250px;
+    top: 50%;
     width: 95.4%;
     z-index: 100;
   }
@@ -519,8 +531,12 @@
     color: var(--text-tertiary);
     position: sticky;
     width: 100%;
-    top: 100px;
+    top: 200px;
     z-index: 100;
+  }
+
+  .btn-scroll.stick-higher {
+    top: 100px;
   }
 
   .btn-stop {
