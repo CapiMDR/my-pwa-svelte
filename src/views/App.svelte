@@ -8,6 +8,7 @@
   import NumberInput from "../components/NumberInput.svelte";
   import WorkoutStat from "../components/WorkoutStat.svelte";
   import { onMount } from "svelte";
+  import { fly, fade } from "svelte/transition";
 
   onMount(loadWorkouts);
 
@@ -51,12 +52,21 @@
         return a.position - b.position;
       });
 
-      groupedWorkouts = Object.entries(
-        workouts.reduce((groups, workout) => {
-          (groups[workout.day] ??= []).push(workout);
-          return groups;
-        }, {}),
-      );
+      const groups = {
+        Monday: [],
+        Tuesday: [],
+        Wednesday: [],
+        Thursday: [],
+        Friday: [],
+        Saturday: [],
+        Sunday: [],
+      };
+
+      for (const workout of workouts) {
+        groups[workout.day].push(workout);
+      }
+
+      groupedWorkouts = Object.entries(groups);
     } else {
       workouts = await db.workouts.where("day").equals(selectedDay).toArray();
       workouts.sort((a, b) => a.position - b.position);
@@ -185,6 +195,14 @@
     routineState = RoutineState.STOPPED;
     completedWorkouts = 0;
     scrollToTop();
+    console.log("Routine ended");
+  }
+
+  function cancelRoutine() {
+    routineState = RoutineState.STOPPED;
+    completedWorkouts = 0;
+    scrollToTop();
+    console.log("Routine cancelled");
   }
 
   function openAddWorkout(dayChosen) {
@@ -222,15 +240,15 @@
 
 <main class="app-container">
   {#if showScrollButton || routineState != RoutineState.STOPPED}
-    <button class="btn-scroll" onclick={() => scrollToTop()}>
+    <button class="btn-scroll" onclick={() => scrollToTop()} transition:fly={{ y: -20, duration: 100 }}>
       <span class="material-symbols-outlined"> keyboard_double_arrow_up </span>
     </button>
   {/if}
   {#if routineState !== RoutineState.STOPPED}
-    <div class="running-timer-section" class:completed={completedWorkouts == totalWorkouts}>
+    <div class="running-timer-section" class:completed={completedWorkouts == totalWorkouts} transition:fade={{ y: -20, duration: 100 }}>
       <Timer timerState={routineState} />
 
-      <div class="progress-section">
+      <div class="progress-section" transition:fade={{ y: -20, duration: 100 }}>
         <div class="progress-label">
           {completedWorkouts} / {totalWorkouts} completed
         </div>
@@ -249,10 +267,13 @@
         </span>
       </button>
     </div>
+    {#if routineState === RoutineState.PAUSED}
+      <div class="pause-indicator" transition:fly={{ y: -20, duration: 250 }}>Paused</div>
+    {/if}
     <div class="divider"></div>
   {/if}
   {#if routineState === RoutineState.STOPPED}
-    <div class="controls-panel">
+    <div class="controls-panel" transition:fade={{ y: -20, duration: 100 }}>
       <div class="section-header">
         <h2>Routine for <span class="day-highlight">{selectedDay}</span></h2>
       </div>
@@ -267,26 +288,26 @@
           </select>
         </div>
         {#if !showAddWorkoutPanel}
-          <button onclick={startRoutine} class="btn-timer" title="Start/Pause Timer">
+          <button onclick={startRoutine} class="btn-timer" title="Start/Pause Timer" transition:fade={{ y: -20, duration: 100 }}>
             <span class="material-icons">play_arrow</span>
             Start Routine
           </button>
         {/if}
         {#if showAddWorkoutPanel}
-          <div class="form-group">
+          <div class="form-group" transition:fly={{ y: -20, duration: 250 }}>
             <label for="workout-name">Workout name</label>
             <input id="workout-name" bind:value={workoutName} placeholder="e.g. Bench Press" />
           </div>
 
-          <div class="form-group">
+          <div class="form-group" transition:fly={{ y: -20, duration: 250 }}>
             <NumberInput label="# Reps" bind:value={workoutReps} />
           </div>
 
-          <div class="form-group">
+          <div class="form-group" transition:fly={{ y: -20, duration: 250 }}>
             <NumberInput label="# Sets" bind:value={workoutSets} />
           </div>
 
-          <div class="form-group">
+          <div class="form-group" transition:fly={{ y: -20, duration: 250 }}>
             <label for="units">Unit</label>
             <select id="units" bind:value={selectedUnit}>
               {#each units as unit}
@@ -301,7 +322,7 @@
       </div>
 
       {#if showAddWorkoutPanel}
-        <div class="button-row">
+        <div class="button-row" transition:fly={{ y: -20, duration: 250 }}>
           <button class="btn-primary" onclick={addWorkout}>
             <span class="material-icons">add</span>
             Add Workout
@@ -312,7 +333,7 @@
           </button>
         </div>
       {:else if selectedDay === "All"}
-        <div class="day-selection-warning">Viewing all workouts. Filter by day to reorder them.</div>
+        <div class="day-selection-warning" transition:fade={{ y: -20, duration: 100 }}>Viewing all workouts. Filter by day to reorder them.</div>
       {/if}
     </div>
     <div class="divider"></div>
@@ -326,27 +347,33 @@
       </button>
     {/if}
     {#if workouts.length === 0}
-      <div class="empty-state">
+      <div class="empty-state" transition:fade={{ y: -20, duration: 100 }}>
         <span class="empty-icon">🏋️</span>
         <h3>No workouts yet</h3>
         <p>Add a workout to get started!</p>
       </div>
     {:else if selectedDay === "All"}
-      <div class="workouts-container">
+      <div class="workouts-container" transition:fade={{ y: -20, duration: 100 }}>
         {#each groupedWorkouts as [day, dayWorkouts]}
           <div class="day-group">
             <WorkoutStat type={"Day"} stat={day} />
-            {#each dayWorkouts as workout (workout.id)}
-              <WorkoutCard
-                {selectedDay}
-                cardState={routineState}
-                {workout}
-                {deleteWorkout}
-                changePosition={swapWorkouts}
-                {updateWorkoutCompletion}
-                {totalWorkouts}
-              />
-            {/each}
+
+            {#if dayWorkouts.length > 0}
+              {#each dayWorkouts as workout (workout.id)}
+                <WorkoutCard
+                  {selectedDay}
+                  cardState={routineState}
+                  {workout}
+                  {deleteWorkout}
+                  changePosition={swapWorkouts}
+                  {updateWorkoutCompletion}
+                  {totalWorkouts}
+                />
+              {/each}
+            {:else}
+              <div class="empty-day">No workouts scheduled, have a nice break!</div>
+            {/if}
+
             {#if routineState === RoutineState.STOPPED}
               <button class="btn-create" onclick={() => openAddWorkout(day)}>
                 <span class="material-icons">add</span>
@@ -357,7 +384,7 @@
         {/each}
       </div>
     {:else}
-      <div class="workouts-container">
+      <div class="workouts-container" transition:fade={{ y: -20, duration: 100 }}>
         {#each workouts as workout (workout.id)}
           <WorkoutCard
             {selectedDay}
@@ -374,10 +401,15 @@
   </div>
 
   {#if routineState !== RoutineState.STOPPED}
-    <div class="footer-container">
-      <button onclick={endRoutine} class="btn-stop">
-        <span class="material-icons">stop</span>
+    <div class="footer-container" transition:fade={{ y: -20, duration: 100 }}>
+      <button onclick={endRoutine} disabled={completedWorkouts < totalWorkouts} class="btn-stop">
+        <span class="material-symbols-outlined"> trophy </span>
         Finish Routine
+      </button>
+
+      <button onclick={cancelRoutine} class="button danger">
+        <span class="material-icons">cancel</span>
+        Cancel Routine
       </button>
     </div>
   {/if}
@@ -392,6 +424,7 @@
 
   .footer-container {
     display: flex;
+    flex-direction: column;
     justify-content: center;
   }
 
@@ -437,13 +470,37 @@
     background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--color-primary) 100%);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
+    margin-bottom: var(--spacing-sm);
     padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-xl);
     box-shadow: var(--shadow-md);
     gap: var(--spacing-lg);
 
     position: sticky;
     top: 150px;
+    z-index: 100;
+  }
+
+  .running-timer-section.completed {
+    border-color: var(--color-gold);
+    box-shadow: 0 0 24px rgba(255, 166, 0, 0.16);
+  }
+
+  .pause-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-tertiary) 100%);
+    border: 1px solid var(--color-accent-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+    box-shadow: var(--shadow-md);
+    font-size: 1rem;
+    font-weight: 700;
+    text-align: center;
+    position: fixed;
+    top: 250px;
+    width: 95.4%;
     z-index: 100;
   }
 
@@ -469,9 +526,12 @@
   .btn-stop {
     background: linear-gradient(135deg, var(--color-gold), var(--color-orange));
     color: var(--bg-dark);
+    margin-top: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
     padding: var(--spacing-md) var(--spacing-lg);
     box-shadow: 0 0 25px rgba(255, 136, 0, 0.4);
     min-width: 140px;
+    min-height: 75px;
   }
 
   .btn-stop:hover {
@@ -622,6 +682,15 @@
     color: var(--text-secondary);
     background: var(--bg-secondary);
     border: 1px dashed var(--color-accent-primary);
+    border-radius: var(--radius-md);
+  }
+
+  .empty-day {
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    text-align: center;
+    color: var(--text-tertiary);
+    border: 2px dashed var(--text-tertiary);
     border-radius: var(--radius-md);
   }
 

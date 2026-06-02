@@ -2,6 +2,7 @@
   import WorkoutStat from "./WorkoutStat.svelte";
   import WorkoutProgressStat from "./WorkoutProgressStat.svelte";
   import ProgressBar from "./ProgressBar.svelte";
+  import { fade } from "svelte/transition";
 
   let { selectedDay, cardState, workout, deleteWorkout, changePosition, updateWorkoutCompletion, totalWorkouts } = $props();
   let completedSets = $state(0);
@@ -41,7 +42,7 @@
   });
 </script>
 
-<div class="workout-card" class:completed={completedSets === workout.sets}>
+<div class="workout-card" class:completed={completedSets === workout.sets} transition:fade={{ duration: 250 }}>
   <div class="card-content">
     <div class="card-header">
       <div class="card-title">
@@ -87,22 +88,23 @@
       </button>
 
       {#if selectedDay !== "All"}
-        {#if workout.position > 0}
-          <button class="btn-move" onclick={() => changePosition(workout, -1)} title="Move up">
-            <span class="material-symbols-outlined"> arrow_drop_up </span>
-          </button>
-        {/if}
-        {#if workout.position < totalWorkouts - 1}
-          <button class="btn-move" onclick={() => changePosition(workout, 1)} title="Move down">
-            <span class="material-symbols-outlined"> arrow_drop_down </span>
-          </button>
-        {/if}
+        <button class="btn-move" class:hidden={workout.position <= 0} onclick={() => changePosition(workout, -1)} title="Move up">
+          <span class="material-symbols-outlined">arrow_drop_up</span>
+        </button>
+
+        <button class="btn-move" class:hidden={workout.position >= totalWorkouts - 1} onclick={() => changePosition(workout, 1)} title="Move down">
+          <span class="material-symbols-outlined">arrow_drop_down</span>
+        </button>
       {/if}
     </div>
   {/if}
 </div>
 
 <style>
+  .hidden {
+    visibility: hidden;
+    pointer-events: none;
+  }
   .workout-card {
     background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-dark) 100%);
     border: 1px solid rgba(255, 255, 255, 0.08);

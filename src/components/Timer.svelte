@@ -52,7 +52,7 @@
 </script>
 
 <div class="timer-display">
-  <span class="timer-label">{timerState === TimerState.PAUSED ? "Paused" : "Time"}</span>
+  <span class="timer-label">Time</span>
   <span class="timer-value" class:completed={timerState == TimerState.COMPLETED}>{timeString}</span>
 </div>
 
