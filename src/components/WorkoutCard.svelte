@@ -1,5 +1,5 @@
 <script>
-  import WorkoutStat from "./WorkoutStat.svelte";
+  import Stat from "./Stat.svelte";
   import WorkoutProgressStat from "./WorkoutProgressStat.svelte";
   import ProgressBar from "./ProgressBar.svelte";
   import { fade } from "svelte/transition";
@@ -62,10 +62,10 @@
 
     <div class="card-body">
       <div class="stats-row" class:has-unit={workout.unit !== "None"}>
-        <WorkoutStat type={"Reps"} stat={workout.reps} />
-        <WorkoutStat type={"Set"} stat={workout.sets} />
+        <Stat type={"Reps"} stat={workout.reps} />
+        <Stat type={"Set"} stat={workout.sets} />
         {#if workout.unit !== "None"}
-          <WorkoutStat type={workout.unit} stat={workout.unitAmount} />
+          <Stat type={workout.unit} stat={workout.unitAmount} />
         {/if}
         {#if cardState !== CardState.STOPPED}
           <WorkoutProgressStat type={"Done"} completed={completedSets} total={workout.sets} />

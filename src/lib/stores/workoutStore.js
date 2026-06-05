@@ -1,14 +1,7 @@
 // @ts-nocheck
 import { writable } from "svelte/store";
 
-import {
-  getAllWorkouts,
-  getWorkoutsByDay,
-  addWorkoutToDays,
-  deleteWorkoutById,
-  swapWorkoutPositions,
-  editWorkout as editWorkout,
-} from "../workoutService.js";
+import { getAllWorkouts, getWorkoutsByDay, addWorkoutToDays, deleteWorkoutById, swapWorkoutPositions, editWorkout } from "../workoutService.js";
 
 const DAY_ORDER = {
   Monday: 0,
