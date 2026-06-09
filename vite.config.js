@@ -10,7 +10,7 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
 
-      includeAssets: ["favicon.svg", "pwa-192x192.png", "pwa-512x512.png"],
+      includeAssets: ["favicon.svg", "icon-192.png", "icon-512.png"],
 
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webmanifest}"],
@@ -19,25 +19,25 @@ export default defineConfig({
       },
 
       manifest: {
-        start_url: "/",
-        scope: "/",
+        start_url: "/Svelter/",
+        scope: "/Svelter/",
 
-        name: "My App",
-        short_name: "MyApp",
+        name: "Svelter",
+        short_name: "Svelter",
 
         display: "standalone",
 
-        theme_color: "#ffffff",
-        background_color: "#ffffff",
+        theme_color: "#1A2A4E",
+        background_color: "#121212",
 
         icons: [
           {
-            src: "pwa-192x192.png",
+            src: "icon-192.png",
             sizes: "192x192",
             type: "image/png",
           },
           {
-            src: "pwa-512x512.png",
+            src: "icon-512.png",
             sizes: "512x512",
             type: "image/png",
           },
